@@ -1,0 +1,345 @@
+/* ===================================================================
+   PLAYER — видеоплеер в стиле Chatterino / Twitch Clips
+   Логика: js/player.js
+   Структура:  .cp-header  (название + ✕)
+               .cp-screen  (видео)
+               .cp-controls-bar  (перемотка + кнопки)
+   =================================================================== */
+
+.cp-player {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 720px;
+  max-width: 95vw;
+  /* Окно высокое, но никогда не выше экрана: панель управления всегда видна */
+  height: 970px;
+  max-height: 100%;
+  overflow: hidden;
+  background-color: #000000;
+  border: 1px solid #333333;
+  user-select: none;
+}
+
+/* -------------------------------------------------------------------
+   Верхняя панель
+   ------------------------------------------------------------------- */
+.cp-header {
+  z-index: 10;
+  flex: none;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: #0a0a0a;
+  border-bottom: 1px solid #262626;
+}
+
+.cp-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.cp-badge {
+  background: #ffffff;
+  color: #000000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 5px;
+  letter-spacing: 0.5px;
+}
+
+.cp-title {
+  color: #ffffff;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cp-top-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #333333;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.cp-top-btn:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+/* -------------------------------------------------------------------
+   Экран с видео: занимает всё свободное место, видео по центру
+   ------------------------------------------------------------------- */
+.cp-screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  cursor: pointer;
+}
+
+.cp-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Большая кнопка ▶ по центру, когда видео на паузе */
+.cp-big-play {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #ffffff;
+  pointer-events: none;
+}
+
+.cp-big-play-icon {
+  margin-left: 4px;
+  color: #ffffff;
+  font-size: 24px;
+}
+
+/* -------------------------------------------------------------------
+   Нижняя панель управления
+   ------------------------------------------------------------------- */
+.cp-controls-bar {
+  z-index: 10;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: #080808;
+  border-top: 1px solid #262626;
+}
+
+/* Полоса перемотки */
+.cp-progress-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 12px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.cp-progress-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: #1c1c1c;
+  transition: height 0.15s ease;
+}
+
+.cp-progress-area:hover .cp-progress-track {
+  height: 6px;
+}
+
+.cp-progress-filled {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: #ffffff;
+}
+
+.cp-progress-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  display: none;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Время над курсором при наведении на полосу */
+.cp-time-bubble {
+  position: absolute;
+  bottom: 14px;
+  left: 0%;
+  display: none;
+  padding: 1px 4px;
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  font-size: 12px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.cp-progress-area:hover .cp-progress-thumb,
+.cp-progress-area:hover .cp-time-bubble {
+  display: block;
+}
+
+/* Ряд кнопок */
+.cp-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+}
+
+.cp-ctrl-left,
+.cp-ctrl-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cp-ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 8px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #2e2e2e;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.cp-ctrl-btn:hover,
+.cp-ctrl-btn.active {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+.cp-btn-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.cp-btn-label {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+/* Громкость */
+.cp-vol-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cp-vol-slider {
+  display: flex;
+  align-items: center;
+  width: 50px;
+  height: 14px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.cp-vol-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: #222222;
+}
+
+.cp-vol-filled {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+}
+
+/* Время: 00:00 / 00:08 */
+.cp-time-display {
+  display: flex;
+  gap: 3px;
+  margin-left: 4px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  color: #cccccc;
+}
+
+.cp-time-sep {
+  color: #666666;
+}
+
+/* -------------------------------------------------------------------
+   Полноэкранный режим (класс .is-fullscreen ставит js/player.js)
+   Видео занимает весь экран, шапка и панель лежат поверх него
+   ------------------------------------------------------------------- */
+.cp-player.is-fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  justify-content: space-between;
+  border: none;
+}
+
+.cp-player.is-fullscreen .cp-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.cp-player.is-fullscreen .cp-header {
+  position: relative;
+  height: 44px;
+  padding: 8px 16px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.5) 75%, transparent 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: opacity 0.3s ease;
+}
+
+.cp-player.is-fullscreen .cp-controls-bar {
+  position: relative;
+  padding: 10px 16px 14px 16px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 75%, transparent 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transition: opacity 0.3s ease;
+}
+
+/* Через пару секунд бездействия панели прячутся вместе с курсором */
+.cp-player.is-fullscreen.cp-controls-hidden {
+  cursor: none;
+}
+
+.cp-player.is-fullscreen.cp-controls-hidden :is(.cp-header, .cp-controls-bar) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------------
+   Мобильные устройства
+   ------------------------------------------------------------------- */
+@media (max-width: 680px) {
+  .cp-player {
+    width: 100%;
+  }
+
+  .cp-vol-slider {
+    display: none;
+  }
+}

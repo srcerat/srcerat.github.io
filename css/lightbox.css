@@ -1,0 +1,173 @@
+/* ===================================================================
+   LIGHTBOX — тёмная подложка (общая для картинок и видео) и
+   просмотр картинки с зумом. Видеоплеер лежит в player.css
+   Логика: js/modal.js (подложка), js/lightbox.js (картинка)
+   =================================================================== */
+
+/* Подложка на весь экран. Показывается, когда у неё есть класс .active */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.94);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+.lightbox-overlay.active {
+  display: flex;
+}
+
+/* Подложка получает фокус программно — рамка вокруг всего экрана не нужна */
+.lightbox-overlay:focus {
+  outline: none;
+}
+
+/* -------------------------------------------------------------------
+   Окно просмотра картинки
+   ------------------------------------------------------------------- */
+.lightbox-content {
+  width: 900px;
+  max-width: 96vw;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: #000000;
+  border: 1px solid #333333;
+  cursor: default;
+  user-select: none;
+}
+
+/* Верхняя панель: название и кнопки зума */
+.lightbox-zoom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #0a0a0a;
+  border-bottom: 1px solid #262626;
+  z-index: 20;
+}
+
+.lz-title {
+  max-width: 45%;
+  color: #ffffff;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lz-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lz-btn {
+  background: #141414;
+  color: #ffffff;
+  border: 1px solid #333333;
+  font-size: 13px;
+  padding: 2px 7px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.lz-btn:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+.lz-zoom-val {
+  min-width: 42px;
+  color: #00e5ff;
+  font-size: 13px;
+  text-align: center;
+  user-select: none;
+}
+
+/* Кнопка закрытия ✕ */
+.lightbox-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #141414;
+  color: #ffffff;
+  border: 1px solid #333333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.lightbox-close:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+/* Область просмотра: колесо — зум, перетаскивание — сдвиг */
+.lightbox-viewport {
+  position: relative;
+  width: 100%;
+  height: 72vh;
+  min-height: 280px;
+  max-height: 78vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000000;
+  cursor: zoom-in;
+  /* Щипок двумя пальцами остаётся за браузером, сдвиг одним пальцем — за нами */
+  touch-action: pinch-zoom;
+}
+
+.lightbox-viewport.is-zoomed {
+  cursor: grab;
+}
+
+.lightbox-viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.lightbox-img-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: center center;
+  transition: transform 0.08s ease-out;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.lightbox-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: #888888;
+  background: #0a0a0a;
+  border-top: 1px solid #262626;
+}
+
+/* В полноэкранном режиме картинка занимает всё свободное место,
+   а подпись остаётся внизу */
+.lightbox-content:fullscreen .lightbox-viewport {
+  flex: 1;
+  height: auto;
+  max-height: none;
+}

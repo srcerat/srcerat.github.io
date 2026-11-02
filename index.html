@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Source_Rat</title>
+  <link rel="icon" type="image/png" href="assets/model.png">
+
+  <!-- Стили: base — общее, page — каркас страницы, feed — лента мемов,
+       lightbox — просмотр картинок, player — видеоплеер -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/page.css">
+  <link rel="stylesheet" href="css/feed.css">
+  <link rel="stylesheet" href="css/lightbox.css">
+  <link rel="stylesheet" href="css/player.css">
+</head>
+<body>
+
+  <!-- Все тексты, ссылки и мемы подставляются из config.js -->
+  <main class="site-container">
+
+    <header class="site-header">
+      <div class="terminal-path" id="header-path"></div>
+      <nav class="nav-links" aria-label="Разделы страницы">
+        <a href="#about" class="nav-btn wipe-btn">[ обо мне ]</a>
+        <a href="#memes" class="nav-btn wipe-btn">[ мемы ↓ ]</a>
+      </nav>
+    </header>
+
+    <hr class="tui-divider">
+
+    <!-- 00: профиль -->
+    <section class="profile-section" id="about" aria-label="Профиль">
+      <div class="sec00-row">
+        <div class="sec00-tag-col">
+          <div class="section-tag">00</div>
+        </div>
+
+        <div class="avatar-wrapper">
+          <img src="assets/model.png" alt="" class="avatar-img" id="profile-avatar">
+        </div>
+
+        <div class="profile-info">
+          <h1 class="profile-title" id="profile-nickname"></h1>
+          <div class="profile-subtitles" id="profile-subtitles"></div>
+          <div class="profile-clock">
+            <span id="clock-time"></span>
+            <span class="clock-slash">\</span>
+            <span id="clock-tz"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01: подпись и кнопки соцсетей -->
+    <section class="about-section" aria-label="Ссылки">
+      <div class="sec01-header-row">
+        <div class="section-tag">01</div>
+        <div class="bio-text" id="bio-description"></div>
+      </div>
+      <nav class="social-buttons-row" id="social-buttons" aria-label="Соцсети"></nav>
+    </section>
+
+    <hr class="tui-divider">
+
+    <!-- 02: лента мемов (три колонки, карточки добавляет js/feed.js) -->
+    <section class="memes-section" id="memes" aria-label="Мемы">
+      <div class="section-tag">02</div>
+
+      <div class="masonry-container" id="masonry-container">
+        <div class="masonry-col"></div>
+        <div class="masonry-col"></div>
+        <div class="masonry-col"></div>
+      </div>
+
+      <!-- Когда этот элемент появляется на экране, подгружается следующая пачка -->
+      <div class="feed-sentinel" id="feed-sentinel"></div>
+
+      <div class="feed-status">
+        <div class="feed-loader" id="feed-loader">[ ■■■□□ загрузка... ]</div>
+        <div class="feed-end-badge" id="feed-end" hidden>
+          <div>[ - - - КОНЕЦ ЛЕНТЫ - - - ]</div>
+          <button type="button" class="back-to-top-btn wipe-btn" id="btn-back-to-top">↑ вернуться в начало</button>
+        </div>
+      </div>
+    </section>
+
+    <noscript>
+      <p>Для работы сайта нужен включённый JavaScript.</p>
+    </noscript>
+  </main>
+
+  <!-- Окно просмотра: сюда js/modal.js кладёт картинку или видеоплеер -->
+  <div class="lightbox-overlay" id="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр" tabindex="-1"></div>
+
+  <!-- Скрипты подключаются по порядку: сначала настройки и помощники,
+       потом модули, в конце main.js запускает сайт.
+       Обычные <script> (не модули), чтобы сайт открывался двойным кликом по index.html -->
+  <script src="config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/lightbox.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/card.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

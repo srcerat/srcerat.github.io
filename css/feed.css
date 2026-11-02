@@ -1,0 +1,277 @@
+/* ===================================================================
+   FEED — лента мемов: колонки, карточки, NSFW-спойлер, конец ленты
+   Карточки создаёт js/card.js, раскладывает по колонкам js/feed.js
+   =================================================================== */
+
+.memes-section {
+  position: relative;
+  margin-top: 6px;
+}
+
+.memes-section .section-tag {
+  margin-bottom: 8px;
+}
+
+/* -------------------------------------------------------------------
+   Колонки (masonry)
+   ------------------------------------------------------------------- */
+.masonry-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.masonry-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* -------------------------------------------------------------------
+   Карточка
+   ------------------------------------------------------------------- */
+.meme-card {
+  position: relative;
+  width: 100%;
+  background-color: #000000;
+  overflow: hidden;
+  border: var(--tui-border-width) solid var(--tui-border-color);
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    opacity 0.35s ease;
+  /* --i — порядковый номер карточки в пачке, задаётся из JS */
+  animation: cardFadeIn 0.35s ease both;
+  animation-delay: calc(var(--i, 0) * 0.04s);
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.meme-card:hover {
+  border-color: #555555;
+}
+
+/* Обёртка медиа: нужна, чтобы поставить бейдж в угол */
+.media-frame {
+  position: relative;
+  width: 100%;
+}
+
+/* Картинка или видео внутри карточки */
+.meme-media {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition:
+    filter 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Плашка в углу (CLIP / GIF / MEME …) */
+.media-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffffff;
+  font-size: 13px;
+  padding: 2px 6px;
+  border: 1px solid #444444;
+  pointer-events: none;
+  letter-spacing: 0.3px;
+}
+
+.media-badge.is-gif {
+  color: #00ffcc;
+  border-color: #00ffcc;
+}
+
+/* Цветной блок-заполнитель (type: "placeholder") */
+.placeholder-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 10px;
+  text-align: center;
+  gap: 8px;
+  user-select: none;
+  transition: filter 0.45s ease, transform 0.45s ease;
+}
+
+.placeholder-badge {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid currentColor;
+}
+
+.placeholder-title {
+  font-size: 19px;
+  letter-spacing: 0.5px;
+}
+
+.placeholder-size {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* -------------------------------------------------------------------
+   NSFW-спойлер: мягкий блюр, снимается кликом
+   ------------------------------------------------------------------- */
+.meme-card.is-nsfw:not(.is-revealed) :is(.meme-media, .placeholder-card) {
+  filter: blur(25px) brightness(0.65) saturate(1.3);
+  transform: scale(1.1);
+}
+
+.nsfw-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  text-align: center;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.65) 100%);
+  backdrop-filter: blur(4px);
+  user-select: none;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.nsfw-spoiler-pill {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.6);
+  font-size: 15px;
+  padding: 3px 10px;
+  letter-spacing: 0.5px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.meme-card:hover .nsfw-spoiler-pill {
+  border-color: #ffffff;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.nsfw-hint {
+  color: #bfbfbf;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+/* После клика спойлер убирается */
+.meme-card.is-revealed .nsfw-overlay {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Кнопка «скрыть обратно» — видна при наведении на открытую карточку */
+.reblur-btn {
+  display: none;
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 12;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffffff;
+  border: 1px solid #444444;
+  font-size: 13px;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.meme-card.is-revealed:hover .reblur-btn {
+  display: block;
+}
+
+.reblur-btn:hover {
+  border-color: #ffffff;
+}
+
+/* -------------------------------------------------------------------
+   Статус ленты: «загрузка…» и «конец ленты»
+   ------------------------------------------------------------------- */
+.feed-sentinel {
+  height: 24px;
+  width: 100%;
+}
+
+.feed-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 0 16px 0;
+  text-align: center;
+  font-size: 16px;
+  color: var(--text-dim);
+}
+
+.feed-loader {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  animation: pulseLoader 1s infinite alternate;
+}
+
+@keyframes pulseLoader {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+
+.feed-end-badge {
+  color: var(--text-tag);
+  font-size: 16px;
+  letter-spacing: 0.8px;
+  user-select: none;
+}
+
+.back-to-top-btn {
+  background: transparent;
+  font-size: 16px;
+  padding: 6px 14px;
+  margin-top: 10px;
+}
+
+/* -------------------------------------------------------------------
+   Мобильные устройства: карточки узкие (3 колонки), поэтому
+   надписи спойлера делаем мельче, чтобы они не обрезались
+   ------------------------------------------------------------------- */
+@media (max-width: 680px) {
+  .nsfw-overlay {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .nsfw-spoiler-pill {
+    font-size: 12px;
+    padding: 2px 4px;
+    letter-spacing: 0;
+  }
+
+  .nsfw-hint {
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+}

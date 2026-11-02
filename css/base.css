@@ -1,0 +1,96 @@
+/* ===================================================================
+   BASE — шрифт, цвета, сброс стилей и общие правила для всей страницы
+   -------------------------------------------------------------------
+   Где что менять:
+   • цвета и размеры сайта      → переменные в :root ниже
+   • рамки и полоски (цвет/толщина) → config.js → settings
+   • шрифт                      → assets/fonts/tiny5.ttf (лежит локально,
+                                   из интернета ничего не грузится)
+   =================================================================== */
+
+@font-face {
+  font-family: 'Tiny5';
+  src: url('../assets/fonts/tiny5.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-main: 'Tiny5', monospace;
+
+  --bg: #000000;
+  --text: #ffffff;
+  --text-dim: #999999;
+  --text-tag: #707070;
+
+  /* Эти четыре значения подставляются из config.js → settings */
+  --tui-border-width: 1px;
+  --tui-divider-width: 1px;
+  --tui-border-color: #262626;
+  --tui-divider-color: #262626;
+
+  --container-width: 660px;
+}
+
+/* Сброс стилей */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--bg);
+  color: var(--text);
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-main);
+  font-size: 18px;
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: 22px 0 70px 0;
+  overflow-x: hidden;
+}
+
+/* Кнопки по умолчанию не наследуют шрифт — исправляем */
+button {
+  font-family: inherit;
+}
+
+/* Атрибут hidden должен скрывать элемент, даже если у него задан display */
+[hidden] {
+  display: none !important;
+}
+
+/* Видимая рамка фокуса — только при управлении с клавиатуры */
+:focus-visible {
+  outline: 1px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* Кастомный терминальный скроллбар */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #262626;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+/* Тем, кто отключил анимации в системе, прокрутку делаем мгновенной */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
